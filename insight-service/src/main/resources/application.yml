@@ -1,0 +1,47 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: insight-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3307/expense_insight_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+
+# Weather API Configuration
+weather:
+  api:
+    key: 35c28d82c7c8469aa5512731252711
+    url: http://api.weatherapi.com/v1
+
+# Gemini AI Configuration
+gemini:
+  api:
+    key: AIzaSyAc4jAgd_WNOg2DiWY4daxzNu1kbvHVWuY
+
+logging:
+  level:
+    com.expense.insight: DEBUG
+    org.hibernate.SQL: DEBUG
+
+---
+# Docker Profile
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+  datasource:
+    url: jdbc:mysql://mysql:3306/expense_insight_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true

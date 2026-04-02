@@ -1,0 +1,184 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        # User Service - Login (POST /login) - No Auth
+        - id: user-service-login
+          uri: http://user-service:8081
+          predicates:
+            - Path=/api/auth/login
+            - Method=POST
+          filters:
+            - RewritePath=/api/auth/(?<segment>.*), /${segment}
+
+        # User Service - Register (POST /register) - No Auth
+        - id: user-service-register
+          uri: http://user-service:8081
+          predicates:
+            - Path=/api/auth/register
+            - Method=POST
+          filters:
+            - RewritePath=/api/auth/(?<segment>.*), /${segment}
+
+        # User Service - Refresh Token (POST /refresh-token) - No Auth
+        - id: user-service-refresh-token
+          uri: http://user-service:8081
+          predicates:
+            - Path=/api/auth/refresh-token
+            - Method=POST
+          filters:
+            - RewritePath=/api/auth/(?<segment>.*), /${segment}
+
+        # User Service - All other /auth endpoints - Require Auth
+        - id: user-service-auth-protected
+          uri: http://user-service:8081
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/auth/(?<segment>.*), /${segment}
+
+        # User Service - Upload avatar - Require Auth
+        - id: user-service-upload
+          uri: http://user-service:8081
+          predicates:
+            - Path=/api/upload/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/upload(?<segment>/?.*), /upload${segment}
+
+        - id: user-service
+          uri: http://user-service:8081
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/users(?<segment>/?.*), /${segment}
+
+        # Transaction Service Routes
+        - id: transaction-service
+          uri: http://transaction-service:8082
+          predicates:
+            - Path=/api/transactions/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/transactions(?<segment>/?.*), /${segment}
+
+        # Fixed Income Routes
+        - id: fixed-income
+          uri: http://transaction-service:8082
+          predicates:
+            - Path=/api/fixed-income/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/(?<segment>.*), /${segment}
+
+        # Supplementary Income Routes
+        - id: supplementary-income
+          uri: http://transaction-service:8082
+          predicates:
+            - Path=/api/supplementary-income/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/(?<segment>.*), /${segment}
+
+        # Recurring Expenses Routes
+        - id: recurring-expenses
+          uri: http://budget-service:8083
+          predicates:
+            - Path=/api/recurring-expenses/**
+          filters:
+            - AuthenticationFilter
+
+        # Incidental Expenses Routes
+        - id: incidental-expenses
+          uri: http://budget-service:8083
+          predicates:
+            - Path=/api/incidental-expenses/**
+          filters:
+            - AuthenticationFilter
+
+        # Recurring Transactions Routes
+        - id: recurring-transactions
+          uri: http://transaction-service:8082
+          predicates:
+            - Path=/api/recurring-transactions/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/recurring-transactions(?<segment>/?.*), /recurring${segment}
+
+        # Budget Service Routes
+        - id: budget-service
+          uri: http://budget-service:8083
+          predicates:
+            - Path=/api/budgets/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/budgets(?<segment>/?.*), /${segment}
+
+        # Savings Goal Service Routes
+        - id: savings-goal-service
+          uri: http://savings-goal-service:8084
+          predicates:
+            - Path=/api/savings/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/savings(?<segment>/?.*), /${segment}
+
+        # AI Service Routes
+        - id: ai-service
+          uri: http://ai-service:8085
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/ai(?<segment>/?.*), /${segment}
+
+        # Notification Service Routes
+        - id: notification-service
+          uri: http://notification-service:8086
+          predicates:
+            - Path=/api/notifications/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/notifications(?<segment>/?.*), /${segment}
+
+        # Insight Service Routes
+        - id: insight-service
+          uri: http://insight-service:8087
+          predicates:
+            - Path=/api/insights/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/insights(?<segment>/?.*), /${segment}
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://localhost:8080"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowedHeaders:
+              - "*"
+            exposedHeaders:
+              - Authorization
+              - Content-Type
+            allowCredentials: true
+            maxAge: 3600
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: INFO

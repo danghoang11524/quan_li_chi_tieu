@@ -1,0 +1,23 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: ai-service
+
+# Gemini AI Configuration
+# Get your free API key at: https://makersuite.google.com/app/apikey
+gemini:
+  api:
+    key: ${GEMINI_API_KEY:}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+# Configuration for AI API integration (OpenAI, Gemini, etc.)
+ai:
+  provider: openai # Options: openai, gemini, azure
+  api-key: ${AI_API_KEY:your-api-key-here}
+  model: gpt-3.5-turbo
+
+logging:
+  level:
+    com.expense.ai: DEBUG
